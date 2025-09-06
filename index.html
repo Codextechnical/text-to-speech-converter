@@ -3,46 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pro Ludo Game | codextechnical</title>
-<meta name="description" content="Play full official 4-player Ludo online. Mobile-friendly, responsive, dice animation, safe zones, capture logic, win detection.">
-<meta name="keywords" content="Ludo, 4 player Ludo, online Ludo, mobile Ludo, codextechnical">
+<title>Enhanced TTS Tool | codextechnical</title>
+<meta name="description" content="Enhanced Text-to-Speech tool with MP3 download, dark mode, and ads integration.">
+<meta name="keywords" content="Text to Speech, TTS, MP3 download, codextechnical">
 
 <!-- AdSense placeholder -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR-ADSENSE-CODE" crossorigin="anonymous"></script>
 
 <style>
-body{margin:0;padding:0;font-family:Arial,sans-serif;text-align:center;background:#f5f5f5;transition:0.3s;}
-h1{color:#4CAF50;margin:10px;}
-#board{display:grid;margin:10px auto;gap:1px;max-width:100%;touch-action:none;}
-.cell{width:24px;height:24px;border:1px solid #ccc;box-sizing:border-box;display:flex;justify-content:center;align-items:center;font-size:12px;border-radius:3px;position:relative;}
-.player-token{width:16px;height:16px;border-radius:50%;position:absolute;top:4px;left:4px;}
-.red{background:red;}
-.blue{background:blue;}
-.green{background:green;}
-.yellow{background:yellow;}
-#diceBtn{padding:10px 20px;margin:10px;font-size:16px;cursor:pointer;}
-#diceValue{font-weight:bold;font-size:18px;margin:8px;}
-#info{margin:8px;font-weight:bold;}
-.ad-banner{margin:10px 0;}
-#modeToggle{padding:8px 16px;margin:8px;cursor:pointer;}
-.dark{background:#1e1e1e;color:#f0f0f0;}
-.dark .cell{border-color:#555;}
-.dark #board{background:#2b2b2b;}
-@media(max-width:500px){
-  .cell{width:18px;height:18px;font-size:10px;}
-  .player-token{width:12px;height:12px;top:3px;left:3px;}
-}
+body{margin:0;padding:0;font-family:Arial,sans-serif;background:#f5f5f5;color:#000;transition:0.3s;}
+body.dark{background:#1e1e1e;color:#f5f5f5;}
+.container{max-width:500px;margin:20px auto;padding:20px;background:#fff;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.1);transition:0.3s;}
+body.dark .container{background:#2b2b2b;}
+h1{text-align:center;color:#4CAF50;}
+textarea{width:100%;height:150px;padding:10px;margin:10px 0;border-radius:5px;border:1px solid #ccc;resize:none;}
+button{padding:10px 20px;margin:5px;font-size:16px;cursor:pointer;border:none;border-radius:5px;background:#4CAF50;color:#fff;transition:0.3s;}
+button:hover{background:#45a049;}
+#modeToggle{background:#555;}
+.ad-banner{margin:10px 0;text-align:center;}
 </style>
 </head>
 <body>
 
-<h1>Pro 4 Player Ludo</h1>
-<div id="board"></div>
-<div>
-  <button id="diceBtn">Roll Dice</button>
-  <span id="diceValue">🎲</span>
-</div>
-<div id="info">Red Player's Turn</div>
+<div class="container">
+<h1>Enhanced TTS Tool</h1>
+<textarea id="text" placeholder="Type your text here..."></textarea>
+<br>
+<label for="voice">Voice:</label>
+<select id="voice"></select>
+<br>
+<label for="rate">Speed:</label>
+<input type="range" id="rate" min="0.5" max="2" value="1" step="0.1">
+<br>
+<button id="speakBtn">Speak</button>
+<button id="downloadBtn">Download MP3</button>
 <button id="modeToggle">Toggle Dark Mode</button>
 
 <div class="ad-banner">
@@ -54,107 +48,71 @@ h1{color:#4CAF50;margin:10px;}
        data-full-width-responsive="true"></ins>
   <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 </div>
+</div>
 
 <script>
-// Board setup
-const boardSize = 15;
-const board = document.getElementById('board');
-board.style.gridTemplateColumns=`repeat(${boardSize},24px)`;
-board.style.gridTemplateRows=`repeat(${boardSize},24px)`;
-const info = document.getElementById('info');
-const diceValue = document.getElementById('diceValue');
-const modeToggle = document.getElementById('modeToggle');
-let darkMode=false;
+// Initialize SpeechSynthesis
+const synth = window.speechSynthesis;
+const textEl = document.getElementById('text');
+const voiceEl = document.getElementById('voice');
+const rateEl = document.getElementById('rate');
 
-modeToggle.addEventListener('click',()=>{
-  darkMode=!darkMode;
-  document.body.classList.toggle('dark',darkMode);
-});
+let voices = [];
 
-// Players
-const players=['red','blue','green','yellow'];
-let currentPlayer=0;
-let positions=[[],[],[],[]];
-for(let p=0;p<4;p++){positions[p]=[-1,-1,-1,-1];} // 4 tokens each
-
-// Create board
-let cells=[];
-for(let i=0;i<boardSize*boardSize;i++){
-  const div=document.createElement('div');
-  div.className='cell';
-  board.appendChild(div);
-  cells.push(div);
-}
-
-// Simple linear path for demo
-const path=[];
-for(let i=0;i<52;i++) path.push(i+2);
-
-// Draw tokens
-function updateBoard(){
-  cells.forEach(c=>c.innerHTML=''); // clear
-  for(let p=0;p<4;p++){
-    positions[p].forEach(pos=>{
-      if(pos>=0 && pos<path.length){
-        const token=document.createElement('div');
-        token.className='player-token '+players[p];
-        cells[path[pos]].appendChild(token);
-      }
-    });
-  }
-}
-
-// Dice roll animation
-function rollDiceAnimation(callback){
-  let count=0;
-  const interval=setInterval(()=>{
-    const num=Math.floor(Math.random()*6)+1;
-    diceValue.textContent=num;
-    count++;
-    if(count>10){clearInterval(interval);callback(num);}
-  },100);
-}
-
-// Move first movable token
-function moveToken(dice){
-  let moved=false;
-  for(let i=0;i<4;i++){
-    if(positions[currentPlayer][i]>=-1){
-      if(positions[currentPlayer][i]+dice<path.length){
-        positions[currentPlayer][i]+=dice;
-        moved=true;
-        break;
-      }
-    }
-  }
-  if(!moved) info.textContent+=" → Can't move any token!";
-  updateBoard();
-  checkWin();
-  if(dice!==6) nextTurn();
-}
-
-// Next turn
-function nextTurn(){
-  currentPlayer=(currentPlayer+1)%4;
-  info.textContent=`${players[currentPlayer].charAt(0).toUpperCase()+players[currentPlayer].slice(1)} Player's Turn`;
-}
-
-// Check win
-function checkWin(){
-  if(positions[currentPlayer].every(pos=>pos>=path.length-1)){
-    info.textContent=`${players[currentPlayer].charAt(0).toUpperCase()+players[currentPlayer].slice(1)} Player Wins!`;
-    document.getElementById('diceBtn').disabled=true;
-  }
-}
-
-document.getElementById('diceBtn').addEventListener('click',()=>{
-  rollDiceAnimation((num)=>{
-    info.textContent=`${players[currentPlayer].charAt(0).toUpperCase()+players[currentPlayer].slice(1)} rolled: ${num}`;
-    moveToken(num);
+function populateVoices() {
+  voices = synth.getVoices();
+  voiceEl.innerHTML = '';
+  voices.forEach((v, i) => {
+    const option = document.createElement('option');
+    option.value = i;
+    option.textContent = `${v.name} (${v.lang})`;
+    voiceEl.appendChild(option);
   });
+}
+
+populateVoices();
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = populateVoices;
+}
+
+// Speak function
+document.getElementById('speakBtn').addEventListener('click', () => {
+  if (synth.speaking) synth.cancel();
+  const utter = new SpeechSynthesisUtterance(textEl.value);
+  utter.voice = voices[voiceEl.value];
+  utter.rate = parseFloat(rateEl.value);
+  synth.speak(utter);
 });
 
-updateBoard();
+// Dark mode toggle
+document.getElementById('modeToggle').addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+});
+
+// MP3 download functionality
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  const text = textEl.value;
+  const voice = voices[voiceEl.value].name;
+  const rate = parseFloat(rateEl.value);
+
+  fetch(`https://ttsmp3.com/makemp3_new.php?msg=${encodeURIComponent(text)}&lang=${voice}&rate=${rate}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.mp3) {
+        const link = document.createElement('a');
+        link.href = data.mp3;
+        link.download = 'speech.mp3';
+        link.click();
+      } else {
+        alert('Failed to generate MP3. Please try again.');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again.');
+    });
+});
 </script>
+
 </body>
 </html>
