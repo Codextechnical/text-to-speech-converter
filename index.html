@@ -3,236 +3,148 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Text-to-Speech Converter | codextechnical</title>
-<meta name="description" content="Convert text to speech online with multiple voices, adjustable speed and pitch, dark mode, and download MP3. Fully mobile-responsive and SEO optimized.">
-<meta name="keywords" content="text to speech, TTS, online voice converter, male voice, female voice, child voice, download mp3, codextechnical">
-<meta name="author" content="codextechnical">
+<title>4 Player Ludo | codextechnical</title>
+<meta name="description" content="Play 4-player Ludo online with friends. Mobile-friendly, responsive, all-human players.">
+<meta name="keywords" content="Ludo, 4 player Ludo, online Ludo, mobile Ludo, codextechnical">
 
 <!-- AdSense placeholder -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR-ADSENSE-CODE" crossorigin="anonymous"></script>
 
 <style>
-:root {
-  --bg-light:#f5f5f5; --bg-dark:#1e1e1e;
-  --text-light:#333; --text-dark:#f0f0f0;
-  --card-light:#fff; --card-dark:#2b2b2b;
-  --primary:#4CAF50; --secondary:#2196F3; --accent:#ff9800;
-}
-
 body{
   font-family: Arial,sans-serif;
-  margin:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  transition:0.3s;
-  background:var(--bg-light);
-  color:var(--text-light);
-}
-
-.container{
-  background:var(--card-light);
-  padding:25px;
-  border-radius:15px;
-  box-shadow:0 8px 30px rgba(0,0,0,0.2);
-  width:90%;
-  max-width:450px;
-  transition:0.3s;
-}
-
-h1{
   text-align:center;
-  margin-bottom:20px;
-  font-size:1.8em;
-  color:var(--primary);
+  margin:0; padding:0;
+  background:#f5f5f5;
 }
-
-textarea{
-  width:100%;
-  height:130px;
-  border-radius:10px;
+h1{color:#4CAF50;margin:10px 0;}
+#board{
+  display:grid;
+  grid-template-columns:repeat(15, 24px);
+  grid-template-rows:repeat(15, 24px);
+  margin:10px auto;
+  gap:2px;
+}
+.cell{
+  width:24px; height:24px;
   border:1px solid #ccc;
-  padding:12px;
-  resize:none;
-  margin-bottom:12px;
-  font-size:1em;
+  box-sizing:border-box;
+  display:flex; justify-content:center; align-items:center;
+  font-size:12px;
+  border-radius:3px;
 }
-
-select,input[type=range]{
-  width:100%;
-  margin:8px 0;
-  padding:8px;
-  border-radius:6px;
-  border:1px solid #ccc;
-  font-size:1em;
-}
-
-.buttons{
-  display:flex;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  gap:4%;
-  margin-top:10px;
-}
-
-button{
-  width:48%;
-  padding:12px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
-  font-size:1em;
-  transition:0.2s;
-}
-
-#play{background-color:var(--primary); color:white;}
-#download{background-color:var(--secondary); color:white;}
-#modeToggle{margin-top:12px; width:100%; background:var(--accent); color:white;}
-
+.player-token{width:16px;height:16px;border-radius:50%;}
+.red{background:red;}
+.blue{background:blue;}
+.green{background:green;}
+.yellow{background:yellow;}
+#diceBtn{padding:10px 20px;margin:10px;font-size:16px;cursor:pointer;}
+#info{margin:8px;font-weight:bold;}
+.ad-banner{margin:10px 0;}
 @media(max-width:500px){
-  .buttons button{width:100%; margin-bottom:8px;}
-}
-
-.ad-banner{
-  margin:15px 0;
-  text-align:center;
+  #board{grid-template-columns:repeat(15, 18px);grid-template-rows:repeat(15, 18px);}
+  .cell{width:18px;height:18px;font-size:10px;}
 }
 </style>
 </head>
-
 <body>
-<div class="container">
-  <h1>Text-to-Speech Converter</h1>
-  
-  <textarea id="text" placeholder="Type your text here..."></textarea>
 
-  <label for="languageSelect">Language:</label>
-  <select id="languageSelect">
-    <option value="en">English</option>
-    <option value="hi">Hindi</option>
-    <option value="es">Spanish</option>
-  </select>
+<h1>4 Player Ludo</h1>
+<div id="board"></div>
+<button id="diceBtn">Roll Dice</button>
+<div id="info">Red Player's Turn</div>
 
-  <label for="genderSelect">Gender:</label>
-  <select id="genderSelect">
-    <option value="male">Male</option>
-    <option value="female">Female</option>
-  </select>
-
-  <label for="ageSelect">Age:</label>
-  <select id="ageSelect">
-    <option value="child">Child</option>
-    <option value="adult">Adult</option>
-  </select>
-
-  <label for="speed">Speed: <span id="speedValue">1</span>x</label>
-  <input type="range" id="speed" min="0.5" max="2" step="0.1" value="1">
-
-  <label for="pitch">Pitch: <span id="pitchValue">1</span></label>
-  <input type="range" id="pitch" min="0.5" max="2" step="0.1" value="1">
-
-  <div class="buttons">
-    <button id="play">Play</button>
-    <button id="download">Download MP3</button>
-  </div>
-  <button id="modeToggle">Toggle Dark Mode</button>
-
-  <div class="ad-banner">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="YOUR-ADSENSE-CODE"
-         data-ad-slot="1234567890"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-    <script>
-         (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
-  </div>
+<div class="ad-banner">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="YOUR-ADSENSE-CODE"
+       data-ad-slot="1234567890"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>
+       (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
 </div>
 
-<footer style="text-align:center; margin-top:12px; font-size:12px;">
-  &copy; <span id="year"></span> codextechnical
-</footer>
-
 <script>
-// Footer year
-document.getElementById('year').textContent = new Date().getFullYear();
+const boardSize = 15;
+const board = document.getElementById('board');
+const info = document.getElementById('info');
+let cells = [];
 
-// DOM Elements
-const textInput = document.getElementById('text');
-const languageSelect = document.getElementById('languageSelect');
-const genderSelect = document.getElementById('genderSelect');
-const ageSelect = document.getElementById('ageSelect');
-const speedInput = document.getElementById('speed');
-const pitchInput = document.getElementById('pitch');
-const speedValue = document.getElementById('speedValue');
-const pitchValue = document.getElementById('pitchValue');
-const playBtn = document.getElementById('play');
-const downloadBtn = document.getElementById('download');
-const modeToggle = document.getElementById('modeToggle');
+// Players
+const players = ['red','blue','green','yellow'];
+let currentPlayer = 0;
+let positions = [[],[],[],[]]; // Each player token positions (up to 4 tokens)
+for(let i=0;i<4;i++){positions[i]=[-1,-1,-1,-1];}
 
-// Update speed/pitch display
-speedInput.addEventListener('input',()=>speedValue.textContent=speedInput.value);
-pitchInput.addEventListener('input',()=>pitchValue.textContent=pitchInput.value);
-
-// Dark mode toggle
-let darkMode=false;
-modeToggle.addEventListener('click',()=>{
-  darkMode=!darkMode;
-  document.body.style.background=darkMode?'var(--bg-dark)':'var(--bg-light)';
-  document.body.style.color=darkMode?'var(--text-dark)':'var(--text-light)';
-  document.querySelector('.container').style.background=darkMode?'var(--card-dark)':'var(--card-light)';
-});
-
-// Voices array
-let voices = [];
-
-// Load voices properly
-function loadVoices(){
-  voices = speechSynthesis.getVoices();
-  if(!voices.length) setTimeout(loadVoices,100);
-}
-speechSynthesis.onvoiceschanged = loadVoices;
-loadVoices();
-
-// Get voice based on language, gender, age
-function getVoice(language, gender, age){
-  const filtered = voices.filter(v=>v.lang.startsWith(language));
-  let voice = filtered.find(v=>v.name.toLowerCase().includes(gender)) || filtered[0] || speechSynthesis.getVoices()[0];
-  let pitch = (age==='child')?1.5:1;
-  return {voice,pitch};
+// Create board cells
+for(let i=0;i<boardSize*boardSize;i++){
+  const div = document.createElement('div');
+  div.className='cell';
+  board.appendChild(div);
+  cells.push(div);
 }
 
-// Play TTS
-function speakText(text){
-  if(!text) return;
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.rate = speedInput.value;
+// Define simple path (linear for demo)
+const path = [];
+for(let i=0;i<52;i++) path.push(i+2);
 
-  const lang = languageSelect.value;
-  const gender = genderSelect.value;
-  const age = ageSelect.value;
-
-  const {voice,pitch} = getVoice(lang,gender,age);
-  utter.voice = voice;
-  utter.pitch = pitch;
-
-  speechSynthesis.speak(utter);
+// Draw tokens on board
+function updateBoard(){
+  cells.forEach(c=>c.innerHTML=''); // clear
+  for(let p=0;p<4;p++){
+    positions[p].forEach(pos=>{
+      if(pos>=0 && pos<path.length){
+        const token = document.createElement('div');
+        token.className='player-token '+players[p];
+        cells[path[pos]].appendChild(token);
+      }
+    });
+  }
 }
 
-playBtn.addEventListener('click',()=>speakText(textInput.value));
+// Roll dice
+function rollDice(){
+  const dice = Math.floor(Math.random()*6)+1;
+  info.textContent = `${players[currentPlayer].charAt(0).toUpperCase()+players[currentPlayer].slice(1)} rolled: ${dice}`;
+  moveToken(dice);
+}
 
-// Download MP3 via Google TTS
-downloadBtn.addEventListener('click',()=>{
-  const text = textInput.value;
-  if(!text){ alert("Enter text first!"); return; }
-  const lang = languageSelect.value;
-  const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${lang}&client=tw-ob`;
-  const a = document.createElement('a'); a.href=ttsUrl; a.download='speech.mp3';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-});
+// Move first available token
+function moveToken(dice){
+  let moved=false;
+  for(let i=0;i<4;i++){
+    if(positions[currentPlayer][i]>=-1){
+      if(positions[currentPlayer][i]+dice<path.length){
+        positions[currentPlayer][i]+=dice;
+        moved=true;
+        break;
+      }
+    }
+  }
+  if(!moved) info.textContent += " → Can't move any token!";
+  updateBoard();
+  checkWin();
+  if(dice!==6) nextTurn();
+}
+
+// Next player's turn
+function nextTurn(){
+  currentPlayer = (currentPlayer+1)%4;
+  info.textContent += ` → ${players[currentPlayer].charAt(0).toUpperCase()+players[currentPlayer].slice(1)} Player's Turn`;
+}
+
+function checkWin(){
+  if(positions[currentPlayer].every(pos=>pos>=path.length-1)){
+    info.textContent = `${players[currentPlayer].charAt(0).toUpperCase()+players[currentPlayer].slice(1)} Player Wins!`;
+    document.getElementById('diceBtn').disabled=true;
+  }
+}
+
+document.getElementById('diceBtn').addEventListener('click',rollDice);
+
+updateBoard();
 </script>
 </body>
 </html>
