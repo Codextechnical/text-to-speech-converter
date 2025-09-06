@@ -3,38 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enhanced TTS Tool | codextechnical</title>
-<meta name="description" content="Enhanced Text-to-Speech tool with MP3 download, dark mode, and ads integration.">
-<meta name="keywords" content="Text to Speech, TTS, MP3 download, codextechnical">
+<title>Free Text to Speech Converter | CodexTechnical</title>
+<meta name="description" content="Free Text to Speech Converter by CodexTechnical. Convert text to speech online with MP3 download and dark mode.">
+<meta name="keywords" content="Text to Speech, TTS, MP3 download, Free Text to Speech, CodexTechnical">
 
 <!-- AdSense placeholder -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR-ADSENSE-CODE" crossorigin="anonymous"></script>
 
 <style>
-body{margin:0;padding:0;font-family:Arial,sans-serif;background:#f5f5f5;color:#000;transition:0.3s;}
-body.dark{background:#1e1e1e;color:#f5f5f5;}
-.container{max-width:500px;margin:20px auto;padding:20px;background:#fff;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.1);transition:0.3s;}
-body.dark .container{background:#2b2b2b;}
-h1{text-align:center;color:#4CAF50;}
-textarea{width:100%;height:150px;padding:10px;margin:10px 0;border-radius:5px;border:1px solid #ccc;resize:none;}
-button{padding:10px 20px;margin:5px;font-size:16px;cursor:pointer;border:none;border-radius:5px;background:#4CAF50;color:#fff;transition:0.3s;}
+body{
+    margin:0; padding:0;
+    font-family: Arial, sans-serif;
+    background:#f0f0f0;
+    color:#111;
+    transition:0.3s;
+}
+body.dark{background:#121212; color:#f0f0f0;}
+.container{
+    max-width:500px;
+    margin:20px auto;
+    padding:20px;
+    background:#fff;
+    border-radius:12px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.15);
+    transition:0.3s;
+}
+body.dark .container{background:#1e1e1e;}
+h1{text-align:center; color:#4CAF50; margin-bottom:15px;}
+textarea{
+    width:100%; height:160px; padding:12px; margin:10px 0;
+    border-radius:8px; border:1px solid #ccc; resize:none;
+    font-size:14px; background:#fff; color:#111;
+}
+body.dark textarea{background:#2b2b2b; color:#f0f0f0; border:1px solid #555;}
+button{
+    padding:10px 20px; margin:5px; font-size:16px;
+    border:none; border-radius:8px; cursor:pointer;
+    background:#4CAF50; color:#fff; transition:0.3s;
+}
 button:hover{background:#45a049;}
 #modeToggle{background:#555;}
-.ad-banner{margin:10px 0;text-align:center;}
+.ad-banner{margin:15px 0; text-align:center;}
+@media(max-width:500px){
+    textarea{height:140px; font-size:13px;}
+    button{font-size:14px;}
+}
 </style>
 </head>
 <body>
 
 <div class="container">
-<h1>Enhanced TTS Tool</h1>
-<textarea id="text" placeholder="Type your text here..."></textarea>
-<br>
-<label for="voice">Voice:</label>
-<select id="voice"></select>
-<br>
-<label for="rate">Speed:</label>
+<h1>Free Text to Speech Converter<br>by CodexTechnical</h1>
+
+<textarea id="text" placeholder="Type or paste your text here..."></textarea>
+
+<label for="rate">Speech Speed:</label>
 <input type="range" id="rate" min="0.5" max="2" value="1" step="0.1">
-<br>
+
 <button id="speakBtn">Speak</button>
 <button id="downloadBtn">Download MP3</button>
 <button id="modeToggle">Toggle Dark Mode</button>
@@ -51,65 +76,43 @@ button:hover{background:#45a049;}
 </div>
 
 <script>
-// Initialize SpeechSynthesis
+// SpeechSynthesis
 const synth = window.speechSynthesis;
 const textEl = document.getElementById('text');
-const voiceEl = document.getElementById('voice');
 const rateEl = document.getElementById('rate');
 
-let voices = [];
-
-function populateVoices() {
-  voices = synth.getVoices();
-  voiceEl.innerHTML = '';
-  voices.forEach((v, i) => {
-    const option = document.createElement('option');
-    option.value = i;
-    option.textContent = `${v.name} (${v.lang})`;
-    voiceEl.appendChild(option);
-  });
-}
-
-populateVoices();
-if (speechSynthesis.onvoiceschanged !== undefined) {
-  speechSynthesis.onvoiceschanged = populateVoices;
-}
-
 // Speak function
-document.getElementById('speakBtn').addEventListener('click', () => {
-  if (synth.speaking) synth.cancel();
-  const utter = new SpeechSynthesisUtterance(textEl.value);
-  utter.voice = voices[voiceEl.value];
-  utter.rate = parseFloat(rateEl.value);
-  synth.speak(utter);
+document.getElementById('speakBtn').addEventListener('click',()=>{
+    if(synth.speaking) synth.cancel();
+    const utter = new SpeechSynthesisUtterance(textEl.value);
+    utter.rate = parseFloat(rateEl.value);
+    synth.speak(utter);
 });
 
 // Dark mode toggle
-document.getElementById('modeToggle').addEventListener('click', () => {
-  document.body.classList.toggle('dark');
+document.getElementById('modeToggle').addEventListener('click',()=>{
+    document.body.classList.toggle('dark');
 });
 
-// MP3 download functionality
-document.getElementById('downloadBtn').addEventListener('click', () => {
-  const text = textEl.value;
-  const voice = voices[voiceEl.value].name;
-  const rate = parseFloat(rateEl.value);
-
-  fetch(`https://ttsmp3.com/makemp3_new.php?msg=${encodeURIComponent(text)}&lang=${voice}&rate=${rate}`)
-    .then(response => response.json())
-    .then(data => {
-      if (data.mp3) {
-        const link = document.createElement('a');
-        link.href = data.mp3;
-        link.download = 'speech.mp3';
-        link.click();
-      } else {
-        alert('Failed to generate MP3. Please try again.');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('An error occurred. Please try again.');
+// MP3 download using free API
+document.getElementById('downloadBtn').addEventListener('click',()=>{
+    const text = textEl.value;
+    if(!text) return alert("Please enter text first.");
+    // Using ttsmp3.com free API
+    fetch(`https://ttsmp3.com/makemp3_new.php?msg=${encodeURIComponent(text)}&lang=Joanna&source=ttsmp3`)
+    .then(res => res.json())
+    .then(data=>{
+        if(data && data.mp3){
+            const link = document.createElement('a');
+            link.href = data.mp3;
+            link.download = 'speech.mp3';
+            link.click();
+        } else {
+            alert("Failed to generate MP3. Try again later.");
+        }
+    }).catch(err=>{
+        console.error(err);
+        alert("Error generating MP3. Check your internet.");
     });
 });
 </script>
