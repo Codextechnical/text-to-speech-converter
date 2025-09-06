@@ -5,8 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Text-to-Speech Converter | codextechnical</title>
 <meta name="description" content="Convert text to speech online with multiple voices, adjustable speed and pitch, dark mode, and download MP3. Fully mobile-responsive and SEO optimized.">
-<meta name="keywords" content="text to speech, TTS, online voice converter, male voice, female voice, robot voice, kids voice, download mp3, codextechnical">
+<meta name="keywords" content="text to speech, TTS, online voice converter, male voice, female voice, child voice, download mp3, codextechnical">
 <meta name="author" content="codextechnical">
+
+<!-- AdSense placeholder -->
+<!-- Replace 'YOUR-ADSENSE-CODE' with your actual Google AdSense code -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR-ADSENSE-CODE" crossorigin="anonymous"></script>
 
 <style>
 :root {
@@ -91,12 +95,19 @@ button{
 @media(max-width:500px){
   .buttons button{width:100%; margin-bottom:8px;}
 }
+
+/* Ad banner */
+.ad-banner{
+  margin:15px 0;
+  text-align:center;
+}
 </style>
 </head>
 
 <body>
 <div class="container">
   <h1>Text-to-Speech Converter</h1>
+  
   <textarea id="text" placeholder="Type your text here..."></textarea>
 
   <label for="languageSelect">Language:</label>
@@ -106,12 +117,16 @@ button{
     <option value="es">Spanish</option>
   </select>
 
-  <label for="voiceSelect">Voice Type:</label>
-  <select id="voiceSelect">
+  <label for="genderSelect">Gender:</label>
+  <select id="genderSelect">
     <option value="male">Male</option>
     <option value="female">Female</option>
-    <option value="robot">Robot</option>
-    <option value="child">Kids</option>
+  </select>
+
+  <label for="ageSelect">Age:</label>
+  <select id="ageSelect">
+    <option value="child">Child</option>
+    <option value="adult">Adult</option>
   </select>
 
   <label for="speed">Speed: <span id="speedValue">1</span>x</label>
@@ -125,6 +140,20 @@ button{
     <button id="download">Download MP3</button>
   </div>
   <button id="modeToggle">Toggle Dark Mode</button>
+
+  <!-- Ad banner -->
+  <div class="ad-banner">
+    <!-- Example AdSense code -->
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="YOUR-ADSENSE-CODE"
+         data-ad-slot="1234567890"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
 </div>
 
 <footer style="text-align:center; margin-top:12px; font-size:12px;">
@@ -137,7 +166,9 @@ document.getElementById('year').textContent = new Date().getFullYear();
 
 // DOM Elements
 const textInput = document.getElementById('text');
-const voiceSelect = document.getElementById('voiceSelect');
+const languageSelect = document.getElementById('languageSelect');
+const genderSelect = document.getElementById('genderSelect');
+const ageSelect = document.getElementById('ageSelect');
 const speedInput = document.getElementById('speed');
 const pitchInput = document.getElementById('pitch');
 const speedValue = document.getElementById('speedValue');
@@ -145,7 +176,6 @@ const pitchValue = document.getElementById('pitchValue');
 const playBtn = document.getElementById('play');
 const downloadBtn = document.getElementById('download');
 const modeToggle = document.getElementById('modeToggle');
-const languageSelect = document.getElementById('languageSelect');
 
 // Update speed/pitch display
 speedInput.addEventListener('input',()=>speedValue.textContent=speedInput.value);
@@ -160,46 +190,49 @@ modeToggle.addEventListener('click',()=>{
   document.querySelector('.container').style.background=darkMode?'var(--card-dark)':'var(--card-light)';
 });
 
-// Function to get voice by type and language
-function getVoiceByType(type, lang){
-    const voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith(lang));
+// Function to get voice by language, gender, age
+function getVoice(language, gender, age){
+    const voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith(language));
     if(!voices.length) return speechSynthesis.getVoices()[0];
-    if(type==='male') return voices.find(v=>v.name.toLowerCase().includes('male')) || voices[0];
-    if(type==='female') return voices.find(v=>v.name.toLowerCase().includes('female')) || voices[0];
-    if(type==='robot') return voices[0];
-    if(type==='child') return voices[0];
-    return voices[0];
+
+    let voice = voices.find(v => v.name.toLowerCase().includes(gender)) || voices[0];
+
+    let pitch = 1;
+    if(age==='child') pitch = 1.5;
+    if(age==='adult') pitch = 1;
+
+    return {voice, pitch};
 }
 
 // Play TTS
 function speakText(text){
-  if(!text) return;
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.rate = speedInput.value;
-  utter.pitch = pitchInput.value;
+    if(!text) return;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = speedInput.value;
 
-  const lang = languageSelect.value || 'en';
-  const type = voiceSelect.value;
+    const lang = languageSelect.value;
+    const gender = genderSelect.value;
+    const age = ageSelect.value;
 
-  const voice = getVoiceByType(type, lang);
-  utter.voice = voice;
+    const {voice, pitch} = getVoice(lang, gender, age);
+    utter.voice = voice;
+    utter.pitch = pitch;
 
-  if(type==='robot') utter.pitch=0.5;
-  if(type==='child') utter.pitch=1.5;
-
-  speechSynthesis.speak(utter);
+    speechSynthesis.speak(utter);
 }
 
 // Event listeners
 playBtn.addEventListener('click',()=>speakText(textInput.value));
 
 // Download MP3 using Google Translate TTS
-downloadBtn.addEventListener('click',()=>{
-  const text=textInput.value;
+downloadBtn.addEventListener('click', ()=>{
+  const text = textInput.value;
   if(!text){ alert("Enter text first!"); return; }
-  const lang=languageSelect.value || 'en';
-  const ttsUrl=`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${lang}&client=tw-ob`;
-  const a=document.createElement('a'); a.href=ttsUrl; a.download='speech.mp3';
+  const lang = languageSelect.value;
+  const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${lang}&client=tw-ob`;
+  const a = document.createElement('a');
+  a.href = ttsUrl;
+  a.download = 'speech.mp3';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
 });
 
