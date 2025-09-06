@@ -9,7 +9,6 @@
 <meta name="author" content="codextechnical">
 
 <!-- AdSense placeholder -->
-<!-- Replace 'YOUR-ADSENSE-CODE' with your actual Google AdSense code -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR-ADSENSE-CODE" crossorigin="anonymous"></script>
 
 <style>
@@ -96,7 +95,6 @@ button{
   .buttons button{width:100%; margin-bottom:8px;}
 }
 
-/* Ad banner */
 .ad-banner{
   margin:15px 0;
   text-align:center;
@@ -141,9 +139,7 @@ button{
   </div>
   <button id="modeToggle">Toggle Dark Mode</button>
 
-  <!-- Ad banner -->
   <div class="ad-banner">
-    <!-- Example AdSense code -->
     <ins class="adsbygoogle"
          style="display:block"
          data-ad-client="YOUR-ADSENSE-CODE"
@@ -190,54 +186,53 @@ modeToggle.addEventListener('click',()=>{
   document.querySelector('.container').style.background=darkMode?'var(--card-dark)':'var(--card-light)';
 });
 
-// Function to get voice by language, gender, age
+// Voices array
+let voices = [];
+
+// Load voices properly
+function loadVoices(){
+  voices = speechSynthesis.getVoices();
+  if(!voices.length) setTimeout(loadVoices,100);
+}
+speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+// Get voice based on language, gender, age
 function getVoice(language, gender, age){
-    const voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith(language));
-    if(!voices.length) return speechSynthesis.getVoices()[0];
-
-    let voice = voices.find(v => v.name.toLowerCase().includes(gender)) || voices[0];
-
-    let pitch = 1;
-    if(age==='child') pitch = 1.5;
-    if(age==='adult') pitch = 1;
-
-    return {voice, pitch};
+  const filtered = voices.filter(v=>v.lang.startsWith(language));
+  let voice = filtered.find(v=>v.name.toLowerCase().includes(gender)) || filtered[0] || speechSynthesis.getVoices()[0];
+  let pitch = (age==='child')?1.5:1;
+  return {voice,pitch};
 }
 
 // Play TTS
 function speakText(text){
-    if(!text) return;
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.rate = speedInput.value;
+  if(!text) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = speedInput.value;
 
-    const lang = languageSelect.value;
-    const gender = genderSelect.value;
-    const age = ageSelect.value;
+  const lang = languageSelect.value;
+  const gender = genderSelect.value;
+  const age = ageSelect.value;
 
-    const {voice, pitch} = getVoice(lang, gender, age);
-    utter.voice = voice;
-    utter.pitch = pitch;
+  const {voice,pitch} = getVoice(lang,gender,age);
+  utter.voice = voice;
+  utter.pitch = pitch;
 
-    speechSynthesis.speak(utter);
+  speechSynthesis.speak(utter);
 }
 
-// Event listeners
 playBtn.addEventListener('click',()=>speakText(textInput.value));
 
-// Download MP3 using Google Translate TTS
-downloadBtn.addEventListener('click', ()=>{
+// Download MP3 via Google TTS
+downloadBtn.addEventListener('click',()=>{
   const text = textInput.value;
   if(!text){ alert("Enter text first!"); return; }
   const lang = languageSelect.value;
   const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${lang}&client=tw-ob`;
-  const a = document.createElement('a');
-  a.href = ttsUrl;
-  a.download = 'speech.mp3';
+  const a = document.createElement('a'); a.href=ttsUrl; a.download='speech.mp3';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
 });
-
-// Ensure voices are loaded
-speechSynthesis.onvoiceschanged = () => {};
 </script>
 </body>
 </html>
