@@ -99,6 +99,13 @@ button{
   <h1>Text-to-Speech Converter</h1>
   <textarea id="text" placeholder="Type your text here..."></textarea>
 
+  <label for="languageSelect">Language:</label>
+  <select id="languageSelect">
+    <option value="en">English</option>
+    <option value="hi">Hindi</option>
+    <option value="es">Spanish</option>
+  </select>
+
   <label for="voiceSelect">Voice Type:</label>
   <select id="voiceSelect">
     <option value="male">Male</option>
@@ -125,9 +132,10 @@ button{
 </footer>
 
 <script>
-// Set current year in footer
+// Footer year
 document.getElementById('year').textContent = new Date().getFullYear();
 
+// DOM Elements
 const textInput = document.getElementById('text');
 const voiceSelect = document.getElementById('voiceSelect');
 const speedInput = document.getElementById('speed');
@@ -137,7 +145,9 @@ const pitchValue = document.getElementById('pitchValue');
 const playBtn = document.getElementById('play');
 const downloadBtn = document.getElementById('download');
 const modeToggle = document.getElementById('modeToggle');
+const languageSelect = document.getElementById('languageSelect');
 
+// Update speed/pitch display
 speedInput.addEventListener('input',()=>speedValue.textContent=speedInput.value);
 pitchInput.addEventListener('input',()=>pitchValue.textContent=pitchInput.value);
 
@@ -150,6 +160,17 @@ modeToggle.addEventListener('click',()=>{
   document.querySelector('.container').style.background=darkMode?'var(--card-dark)':'var(--card-light)';
 });
 
+// Function to get voice by type and language
+function getVoiceByType(type, lang){
+    const voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith(lang));
+    if(!voices.length) return speechSynthesis.getVoices()[0];
+    if(type==='male') return voices.find(v=>v.name.toLowerCase().includes('male')) || voices[0];
+    if(type==='female') return voices.find(v=>v.name.toLowerCase().includes('female')) || voices[0];
+    if(type==='robot') return voices[0];
+    if(type==='child') return voices[0];
+    return voices[0];
+}
+
 // Play TTS
 function speakText(text){
   if(!text) return;
@@ -157,28 +178,33 @@ function speakText(text){
   utter.rate = speedInput.value;
   utter.pitch = pitchInput.value;
 
-  const voices = speechSynthesis.getVoices();
+  const lang = languageSelect.value || 'en';
   const type = voiceSelect.value;
-  if(type==='male') utter.voice = voices.find(v=>v.name.toLowerCase().includes('male'))||voices[0];
-  else if(type==='female') utter.voice = voices.find(v=>v.name.toLowerCase().includes('female'))||voices[0];
-  else if(type==='robot') utter.pitch=0.5;
-  else if(type==='child') utter.pitch=1.5;
+
+  const voice = getVoiceByType(type, lang);
+  utter.voice = voice;
+
+  if(type==='robot') utter.pitch=0.5;
+  if(type==='child') utter.pitch=1.5;
 
   speechSynthesis.speak(utter);
 }
 
-// Download MP3 via Google Translate TTS (now working)
+// Event listeners
+playBtn.addEventListener('click',()=>speakText(textInput.value));
+
+// Download MP3 using Google Translate TTS
 downloadBtn.addEventListener('click',()=>{
   const text=textInput.value;
   if(!text){ alert("Enter text first!"); return; }
-  const ttsUrl=`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=en&client=tw-ob`;
+  const lang=languageSelect.value || 'en';
+  const ttsUrl=`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${lang}&client=tw-ob`;
   const a=document.createElement('a'); a.href=ttsUrl; a.download='speech.mp3';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
 });
 
-playBtn.addEventListener('click',()=>speakText(textInput.value));
+// Ensure voices are loaded
+speechSynthesis.onvoiceschanged = () => {};
 </script>
 </body>
 </html>
