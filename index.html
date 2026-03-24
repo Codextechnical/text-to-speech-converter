@@ -1,117 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enhanced TTS Tool | codextechnical</title>
-<meta name="description" content="Enhanced Text-to-Speech tool with MP3 download, dark mode, and ads integration.">
-<meta name="keywords" content="Text to Speech, TTS, MP3 download, codextechnical">
-
-<!-- AdSense placeholder -->
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR-ADSENSE-CODE" crossorigin="anonymous"></script>
-
-<style>
-body{margin:0;padding:0;font-family:Arial,sans-serif;background:#f5f5f5;color:#000;transition:0.3s;}
-body.dark{background:#1e1e1e;color:#f5f5f5;}
-.container{max-width:500px;margin:20px auto;padding:20px;background:#fff;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.1);transition:0.3s;}
-body.dark .container{background:#2b2b2b;}
-h1{text-align:center;color:#4CAF50;}
-textarea{width:100%;height:150px;padding:10px;margin:10px 0;border-radius:5px;border:1px solid #ccc;resize:none;}
-button{padding:10px 20px;margin:5px;font-size:16px;cursor:pointer;border:none;border-radius:5px;background:#4CAF50;color:#fff;transition:0.3s;}
-button:hover{background:#45a049;}
-#modeToggle{background:#555;}
-.ad-banner{margin:10px 0;text-align:center;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Text to Speech</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            resize: none;
+            outline: none;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+        .btn-large {
+            width: 100%;
+            padding: 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-large:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
 
 <div class="container">
-<h1>Enhanced TTS Tool</h1>
-<textarea id="text" placeholder="Type your text here..."></textarea>
-<br>
-<label for="voice">Voice:</label>
-<select id="voice"></select>
-<br>
-<label for="rate">Speed:</label>
-<input type="range" id="rate" min="0.5" max="2" value="1" step="0.1">
-<br>
-<button id="speakBtn">Speak</button>
-<button id="downloadBtn">Download MP3</button>
-<button id="modeToggle">Toggle Dark Mode</button>
+    <h2>Text to Speech Converter</h2>
+    
+    <textarea id="text-input" placeholder="Yahan apna text type karein ya paste karein..."></textarea>
 
-<div class="ad-banner">
-  <ins class="adsbygoogle"
-       style="display:block"
-       data-ad-client="YOUR-ADSENSE-CODE"
-       data-ad-slot="1234567890"
-       data-ad-format="auto"
-       data-full-width-responsive="true"></ins>
-  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-</div>
+    <button class="btn-large" id="speak-btn">Play Audio</button>
 </div>
 
 <script>
-// Initialize SpeechSynthesis
-const synth = window.speechSynthesis;
-const textEl = document.getElementById('text');
-const voiceEl = document.getElementById('voice');
-const rateEl = document.getElementById('rate');
+    // JavaScript: Yeh browser ke inbuilt speech engine ko use karta hai
+    const textInput = document.getElementById('text-input');
+    const speakBtn = document.getElementById('speak-btn');
 
-let voices = [];
-
-function populateVoices() {
-  voices = synth.getVoices();
-  voiceEl.innerHTML = '';
-  voices.forEach((v, i) => {
-    const option = document.createElement('option');
-    option.value = i;
-    option.textContent = `${v.name} (${v.lang})`;
-    voiceEl.appendChild(option);
-  });
-}
-
-populateVoices();
-if (speechSynthesis.onvoiceschanged !== undefined) {
-  speechSynthesis.onvoiceschanged = populateVoices;
-}
-
-// Speak function
-document.getElementById('speakBtn').addEventListener('click', () => {
-  if (synth.speaking) synth.cancel();
-  const utter = new SpeechSynthesisUtterance(textEl.value);
-  utter.voice = voices[voiceEl.value];
-  utter.rate = parseFloat(rateEl.value);
-  synth.speak(utter);
-});
-
-// Dark mode toggle
-document.getElementById('modeToggle').addEventListener('click', () => {
-  document.body.classList.toggle('dark');
-});
-
-// MP3 download functionality
-document.getElementById('downloadBtn').addEventListener('click', () => {
-  const text = textEl.value;
-  const voice = voices[voiceEl.value].name;
-  const rate = parseFloat(rateEl.value);
-
-  fetch(`https://ttsmp3.com/makemp3_new.php?msg=${encodeURIComponent(text)}&lang=${voice}&rate=${rate}`)
-    .then(response => response.json())
-    .then(data => {
-      if (data.mp3) {
-        const link = document.createElement('a');
-        link.href = data.mp3;
-        link.download = 'speech.mp3';
-        link.click();
-      } else {
-        alert('Failed to generate MP3. Please try again.');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('An error occurred. Please try again.');
+    speakBtn.addEventListener('click', () => {
+        const text = textInput.value;
+        
+        // Check karte hain ki text box khali toh nahi hai
+        if (text.trim() !== '') {
+            const utterance = new SpeechSynthesisUtterance(text);
+            
+            // Speech ki speed aur pitch set kar sakte hain (optional)
+            utterance.rate = 1; // Normal speed
+            utterance.pitch = 1; // Normal pitch
+            
+            // Browser ko bolne ka command dena
+            window.speechSynthesis.speak(utterance);
+        } else {
+            alert('Please enter some text first!');
+        }
     });
-});
 </script>
 
 </body>
